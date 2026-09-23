@@ -5,31 +5,22 @@ const cors = require("cors");
 
 const connectDB = require("./config/db");
 
-const urlRoutes =
-  require("./routes/urlRoutes");
+const urlRoutes = require("./routes/urlRoutes");
 
 const {
   redirectToOriginal
 } = require("./controllers/urlController");
 
-const errorHandler =
-  require("./middleware/errorHandler");
-
+const errorHandler = require("./middleware/errorHandler");
 
 const app = express();
 
 
-// ========================================
 // DATABASE
-// ========================================
-
 connectDB();
 
 
-// ========================================
 // MIDDLEWARE
-// ========================================
-
 app.use(
   cors({
     origin:
@@ -45,68 +36,45 @@ app.use(
 );
 
 
-// ========================================
+// API ROOT
+app.get("/api", (req, res) => {
+  res.json({
+    success: true,
+    message: "LinkLite API is running"
+  });
+});
+
+
 // HEALTH CHECK
-// ========================================
-
-app.get(
-  "/api/health",
-  (req, res) => {
-    res.json({
-      success: true,
-      message:
-        "LinkLite API is running",
-      timestamp:
-        new Date().toISOString()
-    });
-  }
-);
+app.get("/api/health", (req, res) => {
+  res.json({
+    success: true,
+    message: "LinkLite API is running",
+    timestamp: new Date().toISOString()
+  });
+});
 
 
-// ========================================
 // URL API
-// ========================================
-
-app.use(
-  "/api/urls",
-  urlRoutes
-);
+app.use("/api/urls", urlRoutes);
 
 
-// ========================================
 // SHORT URL REDIRECT
-// ========================================
-
-app.get(
-  "/:shortCode",
-  redirectToOriginal
-);
+app.get("/:shortCode", redirectToOriginal);
 
 
-// ========================================
 // NOT FOUND
-// ========================================
-
-app.use(
-  (req, res) => {
-    res.status(404).json({
-      success: false,
-      message:
-        "Route not found"
-    });
-  }
-);
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    message: "Route not found"
+  });
+});
 
 
-// ========================================
 // ERROR HANDLER
-// ========================================
-
 app.use(errorHandler);
 
 
-// ========================================
-// START SERVER
-// ========================================
-
+// VERCEL
 module.exports = app;
